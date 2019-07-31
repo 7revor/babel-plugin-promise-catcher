@@ -117,6 +117,13 @@ module.exports = function () {
       functionCatch = this.opts.functionCatch; // default false
       promiseCatch = this.opts.promiseCatch !== false;
       reportInfo = this.opts.info||{};
+      const ignoreFiles = this.opts.ignoreFiles||[];
+      if(!Array.isArray(ignoreFiles)){
+        throw new Error('ignoreFiles must be Array<string>')
+      }
+      for(let name of ignoreFiles){
+        if(name === fileName) return;
+      }
       if(this.opts.import){ // 导入外部方法模式
         const uidName = file.path.scope.generateUidIdentifier('report');
         const {name,isDefault,source} = this.opts.import;

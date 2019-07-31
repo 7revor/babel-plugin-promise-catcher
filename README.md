@@ -44,7 +44,7 @@ module: {
                   plugins:['babel-plugin-promise-catcher',{
                     import:{
                       name:'reportInfo', // 引入的上报方法
-                      source:'Ohbug', // 方法地址
+                      source:'./reportService', // 方法地址
                       isDefault:true // 是否为默认引入
                       },
                     functionCatch:false, // 为方法自动添加try-catch 默认为false
@@ -52,7 +52,8 @@ module: {
                     info:{ // 错误上报信息，默认全为true
                       fileName:true,
                       line:true
-                      }
+                      },
+                    ignoreFiles:['reportService.js']
                   }]
                 },
               }
@@ -75,7 +76,7 @@ module: {
 - info // 上报信息
     - fileName:boolean 是否上报文件名
     - line:boolean 是否上报行号
-
+- ignoreFiles:Array<string> 忽略的文件名
 
 ### import 
 - eg.

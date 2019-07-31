@@ -21,10 +21,12 @@ fs.readFile('test/in.js', function(err, data) {
             source:'./report',
             isDefault:false
           },
+          functionCatch:true,
           info:{
             fileName:true,
             line:true
-          }
+          },
+          ignoreFiles:['report.js']
         }]
     ],
   };
