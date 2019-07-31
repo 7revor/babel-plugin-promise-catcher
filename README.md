@@ -67,20 +67,20 @@ module: {
   }
 ```
 ### option
-- import:object 错误处理方法信息
-    - name:string 方法名
-    - source:string 路径
-    - isDefault:boolean
-        - true: import report from 'xxx'
-        - false import {report} from 'xx'
+- `import:object` 错误处理方法信息
+    - `name:string` 方法名
+    - `source:string` 路径
+    - `isDefault:boolean`
+        - `true` : `import report from 'xxx'`
+        - `false` : `import {report} from 'xx'`
         
-- reportFn:string 全局错误处理方法，需在入口文件声明，和import同时存在时此选项失效
-- functionCatch:boolean 为方法自动添加try-catch 默认为false
-- promiseCatch:boolean 为promise.then 自动添加 try-catch 默认为true
-- info // 上报信息
-    - fileName:boolean 是否上报文件名
-    - line:boolean 是否上报行号
-- ignoreFiles:Array<string> 忽略的文件名
+- `reportFn:string` 全局错误处理方法，需在入口文件声明，和import同时存在时此选项失效
+- `functionCatch:boolean` 为方法自动添加try-catch 默认为false
+- `promiseCatch:boolean` 为promise.then 自动添加 try-catch 默认为true
+- `info:object` // 上报信息
+    - `fileName:boolean` 是否上报文件名
+    - `line:boolean` 是否上报行号
+- `ignoreFiles:Array<string>` 忽略的文件名
 
 ### import 
 - eg.
