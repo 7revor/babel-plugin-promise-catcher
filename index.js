@@ -31,7 +31,8 @@ module.exports = function ({types: t}) {
       reportFn = this.opts.report||'console.log'
     },
     visitor: {
-      CallExpression(path) {
+      CallExpression(path,state) {
+        console.log(state.file.code)
         let methodName = getCalleeName(path.node.callee);
         if (methodName === 'then' || methodName === 'catch') { // 带有then或者catch，isPromise
           let expressionStatement = path.getStatementParent(); //取父节点

@@ -1,10 +1,10 @@
 {
   "name": "babel-plugin-promise-catcher",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "catch promise automatic",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/test.js"
   },
   "author": "7revor",
   "license": "ISC",
