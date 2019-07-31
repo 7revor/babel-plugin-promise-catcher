@@ -31,7 +31,9 @@ module: {
                 loader:'babel-loader',
                 options:{
                   presets:['@babel/env'], //转码规则
-                  plugins:['babel-plugin-promise-catcher']
+                  plugins:['babel-plugin-promise-catcher',{
+                    report:'console.error'
+                  }]
                 },
               }
             ],

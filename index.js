@@ -27,7 +27,8 @@ let enhancedExpression = new Set();
 module.exports = function ({types: t}) {
   return {
     pre(file){
-      fileName = nodePath.basename(file.opts.filename)
+      fileName = nodePath.basename(file.opts.filename);
+      reportFn = this.opts.report||'console.log'
     },
     visitor: {
       CallExpression(path) {
@@ -53,7 +54,7 @@ module.exports = function ({types: t}) {
             expressionStatement.get('expression.arguments.0.body').replaceWith(promiseCatchEnhancer({ // 替换
               BODY: fnBody,
               ARGUMENTS: t.identifier(argName),
-              HANDLER:t.identifier(reportFn||'console.log'),
+              HANDLER:t.identifier(reportFn),
               FILENAME:t.StringLiteral(nodePath.basename(fileName)),
               FUNC:t.StringLiteral(functionName),
             }));
@@ -63,7 +64,7 @@ module.exports = function ({types: t}) {
             expressionStatement.get('expression').replaceWith(promiseCatchStatement({
               BODY: expression,
               ERR:errorVariableName,
-              HANDLER:t.identifier(reportFn||'console.log'),
+              HANDLER:t.identifier(reportFn),
               FILENAME:t.StringLiteral(nodePath.basename(fileName)),
               FUNC:t.StringLiteral(functionName),
             }))
