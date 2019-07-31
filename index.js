@@ -104,6 +104,7 @@ const funcVisitor = {
       }
       if (getCalleeName(expression.callee) === 'catch') { // end of .catch
         const catchFn = expression.arguments[0];
+        if(!catchFn) return ;
         const argName = catchFn.params[0].name; // get arguments
         const fnBody = catchFn.body.body; // get old func body
         expressionStatement.get('expression.arguments.0.body').replaceWith(promiseCatchEnhancer({ // replace

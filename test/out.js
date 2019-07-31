@@ -34,8 +34,6 @@ function () {
 }();
 
 promise.then(function (res) {})["catch"](function (err) {
-  console.log('err');
-
   if (err instanceof Error) {
     reportInfo(err, ["in.js", "script", "10"]);
   }

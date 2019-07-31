@@ -10,5 +10,5 @@ class a {
 promise.then((res)=>{
 
 }).catch(err=>{
-  console.log('err')
+
 })
