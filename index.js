@@ -27,6 +27,7 @@ function isPromise(path) {
  * @returns {*}
  */
 function getCalleeName(callee) {
+  if(!callee) return;
   if (callee.computed) { // like a['b']
     return callee.property.value;
   } else { // like a.b
@@ -34,18 +35,14 @@ function getCalleeName(callee) {
   }
 }
 
-function getReportInfo(file,fn,l){
-  const {fileName,fnName,line} = reportInfo;
+function getReportInfo(file,l){
+  const {fileName,line} = reportInfo;
   const info = {
     fileName:t.stringLiteral(nodePath.basename(file)),
-    fnName:t.stringLiteral(fn),
-    line:t.stringLiteral(l+'')
+    line:t.numericLiteral(l)
   };
   if(fileName===false){
     delete info['fileName']
-  }
-  if(fnName===false){
-    delete info['fnName']
   }
   if(line===false){
     delete info['line']
@@ -64,19 +61,12 @@ const funcVisitor = {
     if (isPromise(path)||!functionCatch||!path.node.loc) return;
     const line = path.node.loc.start.line;
     const functionBody = path.node.body; //get func body
-    let functionName = 'anonymous function';
-    if (path.node.id) {
-      functionName = path.node.id.name || 'anonymous function';
-    }
-    if (path.node.key) {
-      functionName = path.node.key.name || 'anonymous function';
-    }
     if (functionBody.type === 'BlockStatement') { // has  { }
       const body = path.node.body.body;
       path.get('body').replaceWith(wrapFunction({
         BODY: body,
-        HANDLER:t.identifier(reportFn),
-        INFO:t.arrayExpression(getReportInfo(fileName,functionName,line))
+        HANDLER:reportFn,
+        INFO:t.arrayExpression(getReportInfo(fileName,line))
       }))
     } else { //  func like : (a) => a
       path.get('body').replaceWith(returnStatement({
@@ -92,16 +82,7 @@ const funcVisitor = {
       let expressionStatement = path.getStatementParent(); // get statement
       if (enhancedExpression.has(expressionStatement)) return; // has processed
       const expression = expressionStatement.node.expression;
-      let functionName = 'script';
-      const funcP = path.getFunctionParent();
-      if(funcP){
-        if (funcP.node.id) {
-          functionName = funcP.node.id.name || 'anonymous function';
-        }
-        if (path.node.key) {
-          functionName = funcP.node.key.name || 'anonymous function';
-        }
-      }
+      if(!expression) return;
       if (getCalleeName(expression.callee) === 'catch') { // end of .catch
         const catchFn = expression.arguments[0];
         if(!catchFn) return ;
@@ -110,8 +91,8 @@ const funcVisitor = {
         expressionStatement.get('expression.arguments.0.body').replaceWith(promiseCatchEnhancer({ // replace
           BODY: fnBody,
           ARGUMENTS: t.identifier(argName),
-          HANDLER:t.identifier(reportFn),
-          INFO:t.arrayExpression(getReportInfo(fileName,functionName,line))
+          HANDLER:reportFn,
+          INFO:t.arrayExpression(getReportInfo(fileName,line))
         }));
         enhancedExpression.add(expressionStatement)
       } else { // add catch statement
@@ -119,8 +100,8 @@ const funcVisitor = {
         expressionStatement.get('expression').replaceWith(promiseCatchStatement({
           BODY: expression,
           ERR:errorVariableName,
-          HANDLER:t.identifier(reportFn),
-          INFO:t.arrayExpression(getReportInfo(fileName,functionName,line))
+          HANDLER:reportFn,
+          INFO:t.arrayExpression(getReportInfo(fileName,line))
         }))
         enhancedExpression.add(expressionStatement)
       }
@@ -133,10 +114,29 @@ module.exports = function () {
   return {
     pre(file){
       fileName = nodePath.basename(file.opts.filename);
-      reportFn = this.opts.reportFn||'console.error';
       functionCatch = this.opts.functionCatch; // default false
       promiseCatch = this.opts.promiseCatch !== false;
       reportInfo = this.opts.info||{};
+      if(this.opts.import){ // 导入外部方法模式
+        const uidName = file.path.scope.generateUidIdentifier('report');
+        const {name,isDefault,source} = this.opts.import;
+        if(!name||!source) throw new Error('need  name and source options!');
+        if(isDefault===true){
+          file.path.node.body.unshift(
+            t.importDeclaration(
+              [t.importDefaultSpecifier(uidName)],
+              t.stringLiteral(source)))
+        }else{
+          file.path.node.body.unshift(
+            t.importDeclaration(
+              [t.importSpecifier(uidName,t.identifier(name))],
+              t.stringLiteral(source)))
+        }
+        reportFn = uidName;
+      }else{
+        if(!this.opts.reportFn) throw new Error('need a report function name:string or import options:object');
+        reportFn = t.identifier(this.opts.reportFn);
+      }
       file.path.traverse(funcVisitor); // enhance before other plugins
     }
   };

@@ -6,18 +6,14 @@ const template = require('babel-template');
  */
 const promiseCatchStatement = template(`
   BODY.catch(function(ERR){
-   if(ERR instanceof Error){
       HANDLER(ERR,INFO)
-    }
   })`);
 /**
  * report error
  */
 const promiseCatchEnhancer = template(`{
     BODY
-  if(ARGUMENTS instanceof Error){
      HANDLER(ARGUMENTS,INFO)
-  }
  }`);
 /**
  * add try-catch
@@ -35,10 +31,9 @@ const wrapFunction = template(`{
 const returnStatement = template(`{
     return STATEMENT
 }`)
-
 module.exports={
   wrapFunction,
   returnStatement,
   promiseCatchStatement,
-  promiseCatchEnhancer
+  promiseCatchEnhancer,
 }

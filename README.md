@@ -1,4 +1,5 @@
 ## 自动为promise添加catch方法
+> 可选：为 方法声明|类方法 自动添加try-catch，会导致try-catch的多重嵌套，增加代码体积，默认关闭，需手动开启
 
 ### code in
 ```jsx harmony
@@ -12,6 +13,8 @@ promise().then((res)=>{
 ```
 ### code out
 ```jsx harmony
+import {report} from 'xxx'
+
 function Foo(){
   try{
     console.log('Im foo')
@@ -21,9 +24,7 @@ function Foo(){
   
 }
 promise().then(res => {}).catch(err => {
-  if (err instanceof Error) {
-    console.error(err);
-  }
+    report(err);
 });
 ```
 
@@ -40,14 +41,16 @@ module: {
               {
                 loader:'babel-loader',
                 options:{
-                  presets:['@babel/env'], //转码规则
                   plugins:['babel-plugin-promise-catcher',{
-                    reportFn:'console.error', // 错误上报方法
+                    import:{
+                      name:'reportInfo', // 引入的上报方法
+                      source:'Ohbug', // 方法地址
+                      isDefault:true // 是否为默认引入
+                      },
                     functionCatch:false, // 为方法自动添加try-catch 默认为false
                     promiseCatch:true, // 为promise.then 自动添加 try-catch 默认为true
                     info:{ // 错误上报信息，默认全为true
                       fileName:true,
-                      fnName:true,
                       line:true
                       }
                   }]
@@ -58,11 +61,51 @@ module: {
         ]
   }
 ```
+### option
+- import:object 错误处理方法信息
+    - name:string 方法名
+    - source:string 路径
+    - isDefault:boolean
+        - true: import report from 'xxx'
+        - false import {report} from 'xx'
+        
+- reportFn:string 全局错误处理方法，需在入口文件声明，和import同时存在时此选项失效
+- functionCatch:boolean 为方法自动添加try-catch 默认为false
+- promiseCatch:boolean 为promise.then 自动添加 try-catch 默认为true
+- info // 上报信息
+    - fileName:boolean 是否上报文件名
+    - line:boolean 是否上报行号
+
+
+### import 
+- eg.
+```jsx harmony
+import:{
+  name:'report', 
+  source:'reportService', 
+  isDefault:false 
+}
+```
+inject statement:
+```jsx harmony
+import { report } from 'reportService'
+```
+- eg.
+```jsx harmony
+import:{
+  name:'report', 
+  source:'reportService', 
+  isDefault:true 
+}
+```
+inject statement:
+```jsx harmony
+import report from 'reportService'
+```
 使用默认配置，得到的错误信息为
 ```jsx harmony
-console.error(e,['fileName','fnName','line'])
+reportInfo(e,['example.js', 120])
 ```
 - e:错误
 - fileName:文件名
-- fnName:方法名
 - line:行号
