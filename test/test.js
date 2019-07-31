@@ -11,8 +11,17 @@ fs.readFile('test/in.js', function(err, data) {
   var src = data.toString();
   var transOpts = {
     filename:'in.js',
+    presets:['@babel/env'], //转码规则
     plugins: [
-      [plugin]
+      '@babel/plugin-proposal-class-properties',[plugin,
+        {
+          reportFn:'reportInfo',
+          info:{
+            fileName:true,
+            fnName:true,
+            line:true
+          }
+        }]
     ],
   };
   var result = babel.transform(src, transOpts);
