@@ -29,7 +29,9 @@ promise().then(res => {}).catch(err => {
 ```
 
 ### start
+```bash
 yarn add babel-plugin-promise-catcher --dev
+```
 ### webpack.config.js
 ```jsx harmony
 module: {
