@@ -43,20 +43,22 @@ module: {
               {
                 loader:'babel-loader',
                 options:{
-                  plugins:['babel-plugin-promise-catcher',{
-                    import:{
-                      name:'reportInfo', // 引入的上报方法
-                      source:'./reportService', // 方法地址
-                      isDefault:true // 是否为默认引入
-                      },
-                    functionCatch:false, // 为方法自动添加try-catch 默认为false
-                    promiseCatch:true, // 为promise.then 自动添加 try-catch 默认为true
-                    info:{ // 错误上报信息，默认全为true
-                      fileName:true,
-                      line:true
-                      },
-                    ignoreFiles:['reportService.js']
+                  plugins:[
+                    ['babel-plugin-promise-catcher',{
+                        import:{
+                          name:'reportInfo', // 引入的上报方法
+                          source:'./reportService', // 方法地址
+                          isDefault:true // 是否为默认引入
+                          },
+                        functionCatch:false, // 为方法自动添加try-catch 默认为false
+                        promiseCatch:true, // 为promise.then 自动添加 try-catch 默认为true
+                        info:{ // 错误上报信息，默认全为true
+                          fileName:true,
+                          line:true
+                          },
+                        ignoreFiles:['reportService.js']
                   }]
+                  ]
                 },
               }
             ],
