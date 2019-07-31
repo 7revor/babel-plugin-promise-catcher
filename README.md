@@ -1,5 +1,5 @@
 ## 自动为promise添加catch方法
-> 可选：为 方法声明|类方法 自动添加try-catch，会导致try-catch的多重嵌套，增加代码体积，默认关闭，需手动开启
+> 可选：为 **方法声明** | **类方法** 自动添加try-catch。开启此选项会导致try-catch多重嵌套，增加代码体积，默认关闭，需手动开启
 
 ### code in
 ```jsx harmony
