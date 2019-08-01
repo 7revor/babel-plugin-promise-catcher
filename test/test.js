@@ -21,7 +21,11 @@ fs.readFile('test/in.js', function(err, data) {
             source:'./report',
             isDefault:false
           },
+          reportFn:'reportInfo',
           functionCatch:true,
+          functionDirs:['/src/'],
+          promiseCatch:true,
+          promiseDirs:['/src/'],
           info:{
             fileName:true,
             line:true

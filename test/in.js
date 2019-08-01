@@ -1,1 +1,5 @@
+function promise(){
+
+}
+
 promise().then()
