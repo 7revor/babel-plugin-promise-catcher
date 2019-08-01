@@ -113,15 +113,15 @@ const funcVisitor = {
 module.exports = function () {
   return {
     pre(file){
-      fileName = nodePath.basename(file.opts.filename); // 当前文件名
-      functionCatch = this.opts.functionCatch; // 是否捕获方法
-      promiseCatch = this.opts.promiseCatch !== false; // 是否捕获promise
-      reportInfo = this.opts.info||{}; // 上报信息
-      const ignoreFiles = this.opts.ignoreFiles||[]; // 忽略文件
+      fileName = nodePath.basename(file.opts.filename);
+      functionCatch = this.opts.functionCatch;
+      promiseCatch = this.opts.promiseCatch !== false;
+      reportInfo = this.opts.info||{}; // error info
+      const ignoreFiles = this.opts.ignoreFiles||[];
       const functionDirs = this.opts.functionDirs||'all';
       const promiseDirs = this.opts.promiseDirs||'all';
 
-      //  step1.忽略文件
+      //  step1.ignore files
       if(!Array.isArray(ignoreFiles)) throw new Error('ignoreFiles must be Array<string>');
       for(let name of ignoreFiles){
         if(name === fileName) {
@@ -129,7 +129,7 @@ module.exports = function () {
           return;
         }
       }
-      if(functionDirs!=='all'){ // 指定方法目录
+      if(functionDirs!=='all'){ // function directories
         functionCatch = true;
         if(!Array.isArray(functionDirs)) throw new Error('functionDirs must be Array<string>');
         if(!functionDirs.length) functionCatch = false;
@@ -137,7 +137,7 @@ module.exports = function () {
           if(!file.opts.filename.includes(dir)) return;
         }
       }
-      if(promiseDirs!=='all'){ //指定promise目录
+      if(promiseDirs!=='all'){ //promise directories
         promiseCatch = true;
         if(!Array.isArray(promiseDirs)) throw new Error('promiseDirs must be Array<string>');
         if(!promiseDirs.length) promiseCatch = false;
@@ -147,12 +147,12 @@ module.exports = function () {
       }
 
       if(!functionCatch&&!promiseCatch) return;
-      //  step2.判断上报方式
-      if(this.opts.import){ // 导入外部方法模式
+      //  step2.inject report function
+      if(this.opts.import){ //  import declaration
         const uidName = file.path.scope.generateUidIdentifier('report');
         const {name,isDefault,source} = this.opts.import;
         if(!name||!source) throw new Error('need  name and source options!');
-        if(isDefault===true){
+        if(isDefault===true){ // importDefaultSpecifier
           file.path.node.body.unshift(
             t.importDeclaration(
               [t.importDefaultSpecifier(uidName)],
@@ -164,7 +164,7 @@ module.exports = function () {
               t.stringLiteral(source)))
         }
         reportFn = uidName;
-      }else{ // 全局声明模式
+      }else{ // global declaration
         if(!this.opts.reportFn) throw new Error('need a report function name:string or import options:object');
         reportFn = t.identifier(this.opts.reportFn);
       }
