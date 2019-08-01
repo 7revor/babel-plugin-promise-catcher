@@ -165,6 +165,7 @@ module.exports = function () {
         if(!this.opts.reportFn) throw new Error('need a report function name:string or import options:object');
         reportFn = t.identifier(this.opts.reportFn);
       }
+      console.log('try-catching file : '+fileName);
       file.path.traverse(funcVisitor); // enhance before other plugins
     }
   };
