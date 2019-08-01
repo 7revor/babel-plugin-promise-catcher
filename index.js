@@ -124,7 +124,10 @@ module.exports = function () {
       //  step1.忽略文件
       if(!Array.isArray(ignoreFiles)) throw new Error('ignoreFiles must be Array<string>');
       for(let name of ignoreFiles){
-        if(name === fileName) return;
+        if(name === fileName) {
+          console.log('*********************************try-catching ignore file : ' + fileName);
+          return;
+        }
       }
       if(functionDirs!=='all'){ // 指定方法目录
         functionCatch = true;
@@ -165,7 +168,7 @@ module.exports = function () {
         if(!this.opts.reportFn) throw new Error('need a report function name:string or import options:object');
         reportFn = t.identifier(this.opts.reportFn);
       }
-      console.log('try-catching file : '+fileName);
+      console.log('*********************************try-catching file : '+fileName);
       file.path.traverse(funcVisitor); // enhance before other plugins
     }
   };
