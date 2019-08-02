@@ -5,7 +5,7 @@ yarn add babel-plugin-promise-catcher --dev
 ## What did promise catcher do?
 - Automatically append `.catch` to `Promise`(You can filter by directory) and report error info(customization)
 - Automatically wrap `FunctionDeclaration` and  `ClassMethod` with `try-catch`,but opening this option results in `try-catch` multiple nesting.
-It is recommended to filter with `functional Dirs'. Close by default and open manually.
+It is recommended to filter with `functional Dirs`. Close by default and needs to be turned on manually.
 
 - 自动为**Promise**调用注入`.catch`（可筛选目录及文件），实现全局异常上报（自定义上报方法）
 - 为 **方法声明** 以及 **类方法** 自动添加`try-catch`。开启此选项会导致`try-catch`多重嵌套，增加代码体积。推荐配合`functionDirs`进行筛选。默认关闭，需手动开启。
@@ -111,18 +111,17 @@ module: {
 - `functionDirs:Array<string>` 方法捕获目录
 
 ### Attention
-- `promiseDirs`and `functionDirs`have higher priority than `functionCatch` and `promiseCatch`,in another way,
-If dirs are empty,then no capture is made.And if dirs are passed in, the catch option is ignored.
-- ` ignoreFiles `takes precedence over `dirs`. If a file exists in the specified directory and is declared as `IgnoreFiles`, no capture is performed.
-- There must be one between `import` and  `reportFn`.It is recommended to declare `reportFn` in the entry file and use `import` in special cases.
-- ` import` priority is higher than `reportFn`, if they are passed in at the same time, then the capture method is named `import.name`.
+- `promiseDirs`and `functionDirs`have higher priority than `functionCatch` and `promiseCatch`.
+in another way,if dirs are empty,then no capture is made.And if dirs are passed in, the catch option is ignored.
+- ` ignoreFiles `takes precedence over `dirs`. If a file exists in the specified directory and be declared as `IgnoreFiles`, no capture is performed.
+- There must be one between `import` and  `reportFn`.It is recommended to declare `reportFn` in the entry file. Use `import` in special cases.
+- ` import` priority is higher than `reportFn`. If they are passed in at the same time, then the capture method is named `import.name`.
 
 ### 注意
 - `promiseDirs` 和 `functionDirs` 优先级高于`functionCatch`以及`promiseCatch`,换句话说，如果dirs为空，那么则不进行任何捕获，如果传入dirs，那么则忽略catch选项直接进行捕获
 - `ignoreFiles`的优先级高于`dirs`，如果一个文件即存在于指定目录又被声明为`ignoreFiles`,那么不进行捕获。
 - `import`和`reportFn`必须传入一个，推荐在入口文件声明`reportFn`,特殊情况下使用`import`
 - `import`优先级高于`reportFn`，如果同时传入，那么捕获方法名为`import.name`
-
 
 
 ### import 
@@ -154,6 +153,3 @@ error handler
 ```jsx harmony
 report(err,['example.js', 120])
 ```
-- e:    error
-- fileName: 文件名
-- line: 行号
