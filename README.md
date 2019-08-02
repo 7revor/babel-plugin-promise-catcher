@@ -1,9 +1,13 @@
+## Start
+```bash
+yarn add babel-plugin-promise-catcher --dev
+```
 ## 作用
 - 自动为**Promise**调用注入`.catch`（可筛选目录及文件），实现全局异常上报（自定义上报方法）
 - 可选：为 **方法声明** 以及 **类方法** 自动添加`try-catch`。
-开启此选项会导致`try-catch多重嵌套，增加代码体积。推荐配合`functionDirs`进行筛选。默认关闭，需手动开启。
+开启此选项会导致`try-catch`多重嵌套，增加代码体积。推荐配合`functionDirs`进行筛选。默认关闭，需手动开启。
 
-### code in
+## code in
 ```jsx harmony
 function Foo(){
   console.log('Im foo')
@@ -13,7 +17,7 @@ promise().then((res)=>{
 })
 
 ```
-### code out
+## code out
 ```jsx harmony
 import {report} from 'xxx'
 
@@ -30,11 +34,7 @@ promise().then(res => {}).catch(err => {
 });
 ```
 
-### start
-```bash
-yarn add babel-plugin-promise-catcher --dev
-```
-### webpack.config.js
+## webpack.config.js
 ```jsx harmony
 module: {
     rules: [
