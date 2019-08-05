@@ -22,8 +22,15 @@ const wrapFunction = template(`{
   try {
     BODY
   } catch(err) {
-    HANDLER(err,INFO)
+  
   }
+}`);
+/**
+ * enhance try-catch
+ */
+const enhanceCatch = template(`{
+   HANDLER(ARGUMENTS,INFO)
+    BODY
 }`);
 /**
  * transform arrow function
@@ -36,4 +43,5 @@ module.exports={
   returnStatement,
   promiseCatchStatement,
   promiseCatchEnhancer,
+  enhanceCatch
 }

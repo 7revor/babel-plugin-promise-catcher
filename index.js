@@ -1,9 +1,10 @@
-const {promiseCatchStatement, promiseCatchEnhancer,wrapFunction,returnStatement} = require('./template');
+const {promiseCatchStatement, promiseCatchEnhancer,wrapFunction,returnStatement,enhanceCatch} = require('./template');
 const nodePath  =  require('path');
 const t = require('@babel/types');
 
 let fileName, reportFn,functionCatch,promiseCatch,reportInfo;
 let enhancedExpression = new Set();
+let catchMap = new Map();
 
 /**
  * ignore Promise constructor
@@ -12,10 +13,10 @@ let enhancedExpression = new Set();
  */
 function isPromise(path) {
   const parent = path.parent;
-  if (parent && parent.type === 'NewExpression') { // a new Promise
+  if (t.isNewExpression(parent)) { // a new Promise
     return parent.callee.name === 'Promise'
   }
-  if (parent.type === 'CallExpression') {
+  if (t.isCallExpression(parent)) {
     let callerName = getCalleeName(parent.callee);
     return callerName === 'then' || callerName === 'catch'// ignore .then amd .catch
   }
@@ -57,22 +58,46 @@ function getReportInfo(file,l){
  * @type {{Function(*=): (undefined)}}
  */
 const funcVisitor = {
+  /**
+   * 为方法声明添加try-catch
+   * @param path
+   * @constructor
+   */
   Function(path) {
     if (isPromise(path)||!functionCatch||!path.node.loc) return;
     const line = path.node.loc.start.line;
     const functionBody = path.node.body; //get func body
-    if (functionBody.type === 'BlockStatement') { // has  { }
-      const body = path.node.body.body;
-      path.get('body').replaceWith(wrapFunction({
-        BODY: body,
-        HANDLER:reportFn,
-        INFO:t.arrayExpression(getReportInfo(fileName,line))
-      }))
+    if (t.isBlockStatement(functionBody)) { // has  { }
+      const body = functionBody.body;
+      if(!body.length)  return;
+      //已经全部被try-catch包裹
+      if(t.isTryStatement(body[0])&&body.length===1) return;
+        path.get('body').replaceWith(wrapFunction({
+          BODY: body,
+          HANDLER:reportFn,
+          INFO:t.arrayExpression(getReportInfo(fileName,line))
+        }))
     } else { //  func like : (a) => a
       path.get('body').replaceWith(returnStatement({
         STATEMENT: functionBody
       }))
     }
+  },
+  /**
+   * 处理具体的catch方法
+   * @param path
+   * @constructor
+   */
+  CatchClause(path){
+    const name = path.get('param').node.name;
+    const error = t.identifier(name);
+    const loc = path.getFunctionParent().node.loc;
+    path.get('body').replaceWith(enhanceCatch({
+      HANDLER:reportFn,
+      ARGUMENTS: error,
+      BODY:path.node.body.body,
+      INFO:t.arrayExpression(getReportInfo(fileName,loc.start.line))
+    }))
   },
   CallExpression(path) {
     if(!path.node.loc||!promiseCatch) return; // ignore generated code and  option
@@ -148,7 +173,7 @@ module.exports = function () {
         for(let dir of promiseDirs){
           if(file.opts.filename.includes(dir)){
             promiseCatch = true;
-            catchType += 'Promise'
+            catchType += 'Promise';
             break;
           };
         }

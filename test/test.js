@@ -16,16 +16,8 @@ fs.readFile('test/in.js', function(err, data) {
       //'@babel/plugin-proposal-class-properties',
       [plugin,
         {
-          import:{
-            name:'reportInfo',
-            source:'./report',
-            isDefault:false
-          },
-          reportFn:'reportInfo',
+          reportFn:'console.error',
           functionCatch:true,
-          functionDirs:['/src/'],
-          promiseCatch:true,
-          promiseDirs:['/src/'],
           info:{
             fileName:true,
             line:true
