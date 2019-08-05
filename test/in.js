@@ -1,4 +1,9 @@
 function promise(){
     console.log('try')
 }
-promise().then()
+try{
+  promise().then()
+}catch (e) {
+
+}
+

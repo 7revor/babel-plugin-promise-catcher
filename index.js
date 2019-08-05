@@ -4,7 +4,6 @@ const t = require('@babel/types');
 
 let fileName, reportFn,functionCatch,promiseCatch,reportInfo;
 let enhancedExpression = new Set();
-let catchMap = new Map();
 
 /**
  * ignore Promise constructor
@@ -91,12 +90,17 @@ const funcVisitor = {
   CatchClause(path){
     const name = path.get('param').node.name;
     const error = t.identifier(name);
-    const loc = path.getFunctionParent().node.loc;
+    let line = 0;
+    if(path.getFunctionParent()){ // 在函数声明内
+      line =  path.getFunctionParent().node.loc.start.line
+    }else{  // 位于script
+      line =  path.node.loc.start.line
+    }
     path.get('body').replaceWith(enhanceCatch({
       HANDLER:reportFn,
       ARGUMENTS: error,
       BODY:path.node.body.body,
-      INFO:t.arrayExpression(getReportInfo(fileName,loc.start.line))
+      INFO:t.arrayExpression(getReportInfo(fileName,line))
     }))
   },
   CallExpression(path) {

@@ -6,6 +6,10 @@ function promise() {
   }
 }
 
-promise().then().catch(function (_e) {
-  console.error(_e, ["in.js", 4]);
-});
+try {
+  promise().then().catch(function (_e) {
+    console.error(_e, ["in.js", 5]);
+  });
+} catch (e) {
+  console.error(e, ["in.js", 6]);
+}
