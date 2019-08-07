@@ -10,8 +10,12 @@ let enhancedExpression = new Set();
  * @param path
  */
 function recursion(path){
-  const p = path.findParent(p=>t.isCallExpression(p));
-  if(p){// 含有外层调用
+  let deep = 0;
+  const p = path.findParent(p=>{
+    deep++;
+    return t.isCallExpression(p)
+  });
+  if(p&&deep===2){// 含有外层调用
     return recursion(p)
   }else{
     return path
@@ -127,12 +131,24 @@ const funcVisitor = {
 
       if (outermostName === 'catch') { // end of .catch
         const catchFn = callExpressionOutermost.node.arguments[0];
-        if(!catchFn) return ;
-        const argName = catchFn.params[0].name; // get arguments
+        if(!catchFn) return;
+        let argName;
+        if(!catchFn.params.length){
+          argName = path.scope.generateUidIdentifier('e')
+          catchFn.params.push(argName)
+        }else{
+          argName = t.identifier( catchFn.params[0].name); // get arguments
+        }
         const fnBody = catchFn.body.body; // get old func body
+        if(!fnBody){
+          callExpressionOutermost.get('arguments.0.body').replaceWith(returnStatement({
+            STATEMENT: catchFn.body
+          }))
+          return
+        }
         callExpressionOutermost.get('arguments.0.body').replaceWith(promiseCatchEnhancer({ // replace
           BODY: fnBody,
-          ARGUMENTS: t.identifier(argName),
+          ARGUMENTS: argName,
           HANDLER:reportFn,
           INFO:t.arrayExpression(getReportInfo(fileName,line))
         }));

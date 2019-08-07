@@ -12,8 +12,8 @@ const promiseCatchStatement = template(`
  * report error
  */
 const promiseCatchEnhancer = template(`{
-    BODY
      HANDLER(ARGUMENTS,INFO)
+    BODY
  }`);
 /**
  * add try-catch
@@ -38,6 +38,7 @@ const enhanceCatch = template(`{
 const returnStatement = template(`{
     return STATEMENT
 }`)
+
 module.exports={
   wrapFunction,
   returnStatement,
