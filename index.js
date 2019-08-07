@@ -139,12 +139,12 @@ const funcVisitor = {
         }else{
           argName = t.identifier( catchFn.params[0].name); // get arguments
         }
-        const fnBody = catchFn.body.body; // get old func body
+        let fnBody = catchFn.body.body; // get old func body
         if(!fnBody){
           callExpressionOutermost.get('arguments.0.body').replaceWith(returnStatement({
             STATEMENT: catchFn.body
           }))
-          return
+          fnBody = catchFn.body.body;
         }
         callExpressionOutermost.get('arguments.0.body').replaceWith(promiseCatchEnhancer({ // replace
           BODY: fnBody,
