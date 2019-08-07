@@ -6,6 +6,18 @@ let fileName, reportFn,functionCatch,promiseCatch,reportInfo;
 let enhancedExpression = new Set();
 
 /**
+ * recursion to find outermost callExpression
+ * @param path
+ */
+function recursion(path){
+  const p = path.findParent(p=>t.isCallExpression(p));
+  if(p){// 含有外层调用
+    return recursion(p)
+  }else{
+    return path
+  }
+}
+/**
  * ignore Promise constructor
  * @param path
  * @returns {boolean}
@@ -110,14 +122,15 @@ const funcVisitor = {
     if (methodName === 'then' || methodName === 'catch') { // when call .then or .catch
       let expressionStatement = path.getStatementParent(); // get statement
       if (enhancedExpression.has(expressionStatement)) return; // has processed
-      const expression = expressionStatement.node.expression;
-      if(!expression) return;
-      if (getCalleeName(expression.callee) === 'catch') { // end of .catch
-        const catchFn = expression.arguments[0];
+      const callExpressionOutermost = recursion(path);
+      const outermostName = getCalleeName(callExpressionOutermost.node.callee)
+
+      if (outermostName === 'catch') { // end of .catch
+        const catchFn = callExpressionOutermost.node.arguments[0];
         if(!catchFn) return ;
         const argName = catchFn.params[0].name; // get arguments
         const fnBody = catchFn.body.body; // get old func body
-        expressionStatement.get('expression.arguments.0.body').replaceWith(promiseCatchEnhancer({ // replace
+        callExpressionOutermost.get('arguments.0.body').replaceWith(promiseCatchEnhancer({ // replace
           BODY: fnBody,
           ARGUMENTS: t.identifier(argName),
           HANDLER:reportFn,
@@ -126,8 +139,8 @@ const funcVisitor = {
         enhancedExpression.add(expressionStatement)
       } else { // add catch statement
         const errorVariableName = path.scope.generateUidIdentifier('e');
-        expressionStatement.get('expression').replaceWith(promiseCatchStatement({
-          BODY: expression,
+        callExpressionOutermost.replaceWith(promiseCatchStatement({
+          BODY: callExpressionOutermost.node,
           ERR:errorVariableName,
           HANDLER:reportFn,
           INFO:t.arrayExpression(getReportInfo(fileName,line))
@@ -137,8 +150,7 @@ const funcVisitor = {
     }
   }
 }
-
-module.exports = function () {
+module.exports = function (babel) {
   return {
     pre(file){
       fileName = nodePath.basename(file.opts.filename); // 当前文件名

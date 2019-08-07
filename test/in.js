@@ -1,9 +1,4 @@
-function promise(){
-    console.log('try')
-}
-try{
-  promise().then()
-}catch (e) {
-
-}
-
+ a = promise().then()
+const b = promise().catch(err=>{});
+a === b ? promise().then():false
+ const c = promise.then().catch(err=>{})
