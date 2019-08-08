@@ -13,9 +13,9 @@ function recursion(path){
   let deep = 0;
   const p = path.findParent(p=>{
     deep++;
-    return t.isCallExpression(p)
+    return t.isCallExpression(p)||deep>2
   });
-  if(p&&deep===2){// 含有外层调用
+  if(deep===2&&p&&p.isCallExpression()){// 含有外层调用
     return recursion(p)
   }else{
     return path
@@ -124,17 +124,15 @@ const funcVisitor = {
     const line = path.node.loc.start.line;
     let methodName = getCalleeName(path.node.callee);
     if (methodName === 'then' || methodName === 'catch') { // when call .then or .catch
-      let expressionStatement = path.getStatementParent(); // get statement
-      if (enhancedExpression.has(expressionStatement)) return; // has processed
       const callExpressionOutermost = recursion(path);
+      if(enhancedExpression.has(callExpressionOutermost.node)) return
       const outermostName = getCalleeName(callExpressionOutermost.node.callee)
-
       if (outermostName === 'catch') { // end of .catch
         const catchFn = callExpressionOutermost.node.arguments[0];
         if(!catchFn) return;
         let argName;
         if(!catchFn.params.length){
-          argName = path.scope.generateUidIdentifier('e')
+          argName = path.scope.generateUidIdentifier('e');
           catchFn.params.push(argName)
         }else{
           argName = t.identifier( catchFn.params[0].name); // get arguments
@@ -152,7 +150,7 @@ const funcVisitor = {
           HANDLER:reportFn,
           INFO:t.arrayExpression(getReportInfo(fileName,line))
         }));
-        enhancedExpression.add(expressionStatement)
+        enhancedExpression.add(callExpressionOutermost.node)
       } else { // add catch statement
         const errorVariableName = path.scope.generateUidIdentifier('e');
         callExpressionOutermost.replaceWith(promiseCatchStatement({
@@ -161,7 +159,7 @@ const funcVisitor = {
           HANDLER:reportFn,
           INFO:t.arrayExpression(getReportInfo(fileName,line))
         }))
-        enhancedExpression.add(expressionStatement)
+        enhancedExpression.add(callExpressionOutermost.node)
       }
     }
   }
