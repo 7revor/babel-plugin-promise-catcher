@@ -20,6 +20,16 @@ promise().then((res)=>{
 
 })
 
+promise2().then(res=>{
+  
+}).catch(err=>{
+  console.log('im error')
+})
+
+
+promise3().catch(err=>{
+  console.log('im error')
+})
 ```
 ## code out
 ```jsx harmony
@@ -36,6 +46,18 @@ function Foo(){
 promise().then(res => {}).catch(err => {
     report(err);
 });
+
+promise2().then(res=>{
+  
+}).catch(e=>{
+  report(e)
+   console.log('im error')
+})
+
+promise3().catch(err=>{
+  report(e)
+  console.log('im error')
+})
 ```
 
 ## webpack.config.js
@@ -153,3 +175,5 @@ error handler
 ```jsx harmony
 report(err,['example.js', 120])
 ```
+
+
