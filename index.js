@@ -174,7 +174,7 @@ module.exports = function (babel) {
       const ignoreFiles = this.opts.ignoreFiles||[]; // 忽略文件
       const functionDirs = this.opts.functionDirs||'all';
       const promiseDirs = this.opts.promiseDirs||'all';
-      let catchType = ''
+      let catchType = '';
       //  step1.忽略文件
       if(!Array.isArray(ignoreFiles)) throw new Error('ignoreFiles must be Array<string>');
       for(let name of ignoreFiles){
@@ -195,6 +195,8 @@ module.exports = function (babel) {
             break;
           };
         }
+      }else{
+        functionCatch&&(catchType += 'Function ');
       }
       if(promiseDirs!=='all'){ //指定promise目录
         promiseCatch = false;
@@ -207,6 +209,8 @@ module.exports = function (babel) {
             break;
           };
         }
+      }else{
+        promiseCatch&&(catchType += 'Promise');
       }
       if(functionCatch!==true&&promiseCatch!==true) return;
       //  step2.判断上报方式

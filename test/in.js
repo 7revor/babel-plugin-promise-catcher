@@ -1,15 +1,19 @@
-itemDetail().then(res=>{
-  this.setState()
-}).catch(()=>{
-  PyDialog.alert().then(()=>{
+function update(){
 
+  // ... ...
+  itemUpdate(item).then(result=>{
+    //...
   })
-})
 
-const a = promise1.then()
+  itemDetailGet(item).then(res=>{
+    //...
+  }).catch(e=>{
+    //原有逻辑
+  })
 
-b = promise2.then().catch(err=>err)
+  addLog(item).catch(e=>{
+    //原有逻辑
+  })
 
-promise3.catch(err=>{
-
-})
+  // ... ...
+}

@@ -15,11 +15,11 @@ fs.readFile('test/in.js', function(err, data) {
       [plugin,
         {
           reportFn:'console.error',
-          functionCatch:true,
           info:{
             fileName:true,
             line:true
           },
+          promiseDirs:['src'],
           ignoreFiles:['report.js']
         }]
     ],
