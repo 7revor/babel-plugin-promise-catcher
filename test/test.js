@@ -19,7 +19,6 @@ fs.readFile('test/in.js', function(err, data) {
             fileName:true,
             line:true
           },
-          promiseDirs:['src'],
           ignoreFiles:['report.js']
         }]
     ],
